@@ -25,11 +25,7 @@ allprojects {
         
     }
 }
-dependencies {
 
-    api 'com.paypal.sdk:paypal-android-sdk:2.16.0'
-    api 'com.google.code.gson:gson:2.8.6'
-}
 
 task clean(type: Delete) {
     delete rootProject.buildDir

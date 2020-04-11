@@ -1,30 +1,30 @@
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by Fernflower decompiler)
+//
+
 package com.dXs.paypal.integration.factory;
 
 import android.content.Context;
 import android.content.Intent;
 import androidx.fragment.app.FragmentActivity;
 import com.dXs.paypal.integration.interfaces.IPaypalPresnetr;
-import com.dXs.paypal.integration.utils.Const;
-import com.dXs.paypal.integration.utils.PaypalUtil;
 import com.paypal.android.sdk.payments.PayPalConfiguration;
 import com.paypal.android.sdk.payments.PayPalPayment;
 import com.paypal.android.sdk.payments.PayPalService;
 import com.paypal.android.sdk.payments.PaymentActivity;
 import com.paypal.android.sdk.payments.PaymentConfirmation;
-import org.json.JSONException;
 import java.math.BigDecimal;
-
+import org.json.JSONException;
 
 public class PaypalFactory<T> implements IPaypalPresnetr<T> {
-
     private static PaypalFactory mInstance;
     private static Context context;
     private Intent serviceIntent = null;
     private PayPalConfiguration config;
 
     private PaypalFactory() {
-        super();
-        config = getPaypalConfig(context);
+        this.config = this.getPaypalConfig(context);
     }
 
     public static synchronized PaypalFactory getInstance(Context ctx) {
@@ -36,77 +36,66 @@ public class PaypalFactory<T> implements IPaypalPresnetr<T> {
         return mInstance;
     }
 
-    @Override
-    public PayPalConfiguration getPaypalConfig(Context ctx)
-    {
-        if (config==null)
-            config = new PayPalConfiguration()
-                    .environment(PayPalConfiguration.ENVIRONMENT_SANDBOX)
-                    .clientId(PaypalUtil.PAYPAL_CLIENT_ID);
+    public PayPalConfiguration getPaypalConfig(Context ctx) {
+        if (this.config == null) {
+            this.config = (new PayPalConfiguration()).environment("sandbox").clientId("Aa-v3b7SnUGbHMl93L9xs59WcHL8IeinCGSA8a6Og6vsOneRLHGgBFHRpmziHKiTPGHVNyEFE6LXK-xv");
+        }
 
-        return config;
+        return this.config;
     }
 
-    @Override
     public Context getContext() {
         return context;
     }
 
-    @Override
     public void startPaypalService() {
-        getPaypalConfig(context);
-        //start paypal service
-            getPaypalServiceIntent();
-            if (serviceIntent!=null) {
-                serviceIntent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, getPaypalConfig(context));
-                context.startService(serviceIntent);
-            }
-    }
-
-    @Override
-    public void stopPaypalService() {
-        if (serviceIntent!=null) {
-            context.stopService(serviceIntent);
-            serviceIntent = null;
+        this.getPaypalConfig(context);
+        this.getPaypalServiceIntent();
+        if (this.serviceIntent != null) {
+            this.serviceIntent.putExtra("com.paypal.android.sdk.paypalConfiguration", this.getPaypalConfig(context));
+            context.startService(this.serviceIntent);
         }
+
     }
 
-    @Override
+    public void stopPaypalService() {
+        if (this.serviceIntent != null) {
+            context.stopService(this.serviceIntent);
+            this.serviceIntent = null;
+        }
+
+    }
+
     public void openPaymentScreen(String amount) {
-        PayPalPayment payPalPayment = new PayPalPayment(new BigDecimal(String.valueOf(amount)),"USD",
-                "Purchase Goods",PayPalPayment.PAYMENT_INTENT_SALE);
+        PayPalPayment payPalPayment = new PayPalPayment(new BigDecimal(String.valueOf(amount)), "USD", "Purchase Goods", "sale");
         Intent paymentIntent = new Intent(context, PaymentActivity.class);
-        paymentIntent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION,config);
-        paymentIntent.putExtra(PaymentActivity.EXTRA_PAYMENT,payPalPayment);
-
-        ((FragmentActivity)context).startActivityForResult(paymentIntent, Const.PAYPAL_REQUEST_CODE);
+        paymentIntent.putExtra("com.paypal.android.sdk.paypalConfiguration", this.config);
+        paymentIntent.putExtra("com.paypal.android.sdk.payment", payPalPayment);
+        ((FragmentActivity)context).startActivityForResult(paymentIntent, 7777);
     }
 
-    @Override
     public Intent getPaypalServiceIntent() {
-        if (serviceIntent==null)
-            serviceIntent = new Intent(context, PayPalService.class);
+        if (this.serviceIntent == null) {
+            this.serviceIntent = new Intent(context, PayPalService.class);
+        }
 
-        return serviceIntent;
+        return this.serviceIntent;
     }
 
-    @Override
     public boolean isPaymentConfirmed(Intent data) {
-        PaymentConfirmation confirmation = data.getParcelableExtra(PaymentActivity.EXTRA_RESULT_CONFIRMATION);
-
-        return confirmation!=null?true:false;
+        PaymentConfirmation confirmation = (PaymentConfirmation)data.getParcelableExtra("com.paypal.android.sdk.paymentConfirmation");
+        return confirmation != null;
     }
 
-    @Override
     public String getPaymentResultString(Intent data) {
-        PaymentConfirmation confirmation = data.getParcelableExtra(PaymentActivity.EXTRA_RESULT_CONFIRMATION);
+        PaymentConfirmation confirmation = (PaymentConfirmation)data.getParcelableExtra("com.paypal.android.sdk.paymentConfirmation");
         String result = null;
+
         try {
             result = confirmation.toJSONObject().toString(4);
-        } catch (JSONException e) {
-
+        } catch (JSONException var5) {
         }
+
         return result;
     }
-
 }
